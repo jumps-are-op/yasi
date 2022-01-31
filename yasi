@@ -1,0 +1,70 @@
+#!/bin/bash
+
+###########################################
+## yasi # Yet Another Subleq Interpreter ##
+###########################################
+
+#
+# Made by jumps-are-op
+# All software Made By jumps-are-op is under GPL
+#
+
+# Display help message
+help() {
+echo 'YASI (Yet Another Subleq Interpreter)                              '
+echo '                                                                   '
+echo 'usage: yasi OPTIONS [FILEs]                                        '
+echo 'OPTIONS:                                                           '
+echo ' --stdin        Take input as stdin                                '
+echo ' --file         Take input as file                                 '
+echo ' --help         Display help (This message)                        '
+}
+
+# Check if the host is WSL system if yes then exit because WSL is NOT supported
+grep -q Microsoft /proc/version && echo "Windows Subsystem for Linux is NOT supported" && exit 0
+
+[ "$*" == "" ] && help && exit 1
+
+inputs=($@)
+for option in "${inputs[@]}";do
+	((i++))
+	[[ $skip ]]&&skip=0&&continue
+	case "$option" in
+		--stdin)mem=( ${mem[@]} $(cat |tr '\n' ' ') );;
+		--file)mem=( ${mem[@]} $(tr '\n' ' ' "${inputs[i]}") );skip=1;;
+		--help)help;exit;;
+		*)echo "Invalide option $option";exit 1;;
+	esac
+done
+
+# Check if input is empty
+if [ "${mem[*]}" == "" ];then
+	echo "Empty input."
+	exit 1
+fi
+
+# Check for strings
+if tr ' ' '\n' <<<"${mem[@]}"|grep -qv "^\([-+]*[0-9]\+\(\.[0-9]\+\)*\)*$";then
+	echo "Strings are not allowed in run time."
+	 tr ' ' '\n' <<<"${mem[@]}"|grep -nv "^\([-+]*[0-9]\+\(\.[0-9]\+\)*\)*$"
+	exit 1
+fi
+
+# Run time
+while (( addr >= 0 )) && (( addr < ${#mem[@]} )) && [ "$addr" != "" ];do
+  a=${mem[addr]} 
+  b=${mem[addr+1]}
+  c=${mem[addr+2]}
+  (( addr += 3 ))
+  if (( a < 0 ));then
+    read -rn 1 i </dev/tty
+    mem[b]=$(LC_CTYPE=C printf '%d' "'$i")
+  elif (( b < 0 )); then
+    printf '%b' '\x'"$(printf '%x' "${mem[$a]}")"
+  else
+    if (( (mem[b] -= mem[a]) <= 0 ));then
+      addr="$c"
+    fi
+  fi
+done
+exit 0
