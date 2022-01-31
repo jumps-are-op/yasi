@@ -1,4 +1,5 @@
-# yasi (Yet Another Subleq Interpreter)
+# yasi
+yasi is Yet Another Subleq Interpreter written in bash
 
 ## description
 
