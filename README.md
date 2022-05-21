@@ -1,7 +1,6 @@
-# yasi
-yasi is Yet Another Subleq Interpreter written in bash
+# yasi (Yet Another Subleq Interpreter)
 
 ## description
 
 Yet Another Subleq Intrpreter (aka "yasi")
-Is simple subleq emulator for minimalist test for plane subleq code
+YASI is simple subleq emulator and debuggerfor plane subleq code writen in bash
